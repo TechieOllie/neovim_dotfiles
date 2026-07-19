@@ -124,7 +124,7 @@ return {
           "--clang-tidy",
           "--header-insertion=iwyu",
           "--completion-style=detailed",
-          "--function-arg-placeholders",
+          "--function-arg-placeholders=1", -- newer clangd (22+) requires an explicit value here
           -- Uncomment for cross-compilation (STM32 / ESP-IDF):
           -- "--query-driver=/path/to/arm-none-eabi-gcc",
           -- "--query-driver=/path/to/xtensa-esp32-elf-gcc",
@@ -134,11 +134,12 @@ return {
       })
 
       -- ── SQL: sqls ───────────────────────────────────────
-      vim.lsp.config("sqls", {
-        on_attach = function(client, bufnr)
-          require("sqls").on_attach(client, bufnr)
-        end,
-      })
+      -- No manual vim.lsp.config("sqls", {...}) here -- the sqls.nvim
+      -- plugin ships its own lsp/sqls.lua, auto-discovered by Neovim's
+      -- native LSP config mechanism (cmd/filetypes/commands/on_attach
+      -- all provided there already). The old require("sqls").on_attach()
+      -- call this used to make is based on a since-removed plugin API
+      -- and just errors now ("module 'sqls' not found").
 
       -- ── Lua (for editing this config) ───────────────────
       vim.lsp.config("lua_ls", {

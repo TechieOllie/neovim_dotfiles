@@ -21,7 +21,8 @@ restart required.
 │   │   │   ├── keymaps.lua         Key bindings
 │   │   │   └── autocmds.lua        Autocommands (SIGUSR1 handled by matugen.lua)
 │   │   └── plugins/
-│   │       ├── lsp.lua             Mason · lspconfig (vim.lsp.config API) · jdtls
+│   │       ├── lsp.lua             Mason · lspconfig (vim.lsp.config API)
+│   │       ├── dap.lua             nvim-dap · nvim-dap-ui · Python debugging (debugpy)
 │   │       ├── completion.lua      nvim-cmp · LuaSnip · friendly-snippets
 │   │       ├── treesitter.lua      Syntax · indent · text-objects
 │   │       ├── git.lua             Lazygit · Diffview (merge TUI) · Gitsigns
@@ -64,9 +65,8 @@ restart required.
 - `sqlfluff` — SQL formatter
 - `stylua` — Lua formatter
 - `php-cs-fixer` — PHP formatter (via Composer)
-
-Java (`jdtls`) is managed by Mason but loaded through `nvim-jdtls`
-rather than lspconfig for richer project support.
+- `debugpy` — Python debug adapter (via `mason-tool-installer.nvim`,
+  used by `nvim-dap`/`nvim-dap-python`, see `plugins/dap.lua`)
 
 ---
 
@@ -222,6 +222,19 @@ To reload manually inside Neovim: `<leader>tr`
 | `<leader>cO` | Choose ours for **all** conflicts |
 | `<leader>cT` | Choose theirs for **all** conflicts |
 
+### Debug (Python, via nvim-dap)
+
+| Key | Action |
+|---|---|
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dc` | Continue / start debugging |
+| `<leader>di` | Step into |
+| `<leader>do` | Step over |
+| `<leader>dO` | Step out |
+| `<leader>dr` | Toggle REPL |
+| `<leader>dt` | Terminate session |
+| `<leader>du` | Toggle DAP UI |
+
 ### Windows & Buffers
 
 | Key | Action |
@@ -247,6 +260,21 @@ Uses `pyright` for type checking and `ruff` (as a standalone LSP) for
 formatting and linting. `ruff` replaces Black + isort + flake8 in one
 fast binary. Configure per-project with a `pyproject.toml` or `ruff.toml`.
 
+**Debugging**: `nvim-dap` + `nvim-dap-ui`, adapter via `nvim-dap-python`,
+debugger itself (`debugpy`) installed automatically by Mason on first
+launch. Set a breakpoint and start debugging from any Python buffer:
+
+| Key | Action |
+|---|---|
+| `<leader>db` | Toggle breakpoint |
+| `<leader>dc` | Continue / start debugging |
+| `<leader>di` | Step into |
+| `<leader>do` | Step over |
+| `<leader>dO` | Step out |
+| `<leader>dr` | Toggle REPL |
+| `<leader>dt` | Terminate session |
+| `<leader>du` | Toggle DAP UI |
+
 ### C / C++ (STM32, Espressif)
 
 `clangd` needs a `compile_commands.json` at the project root:
@@ -271,20 +299,6 @@ For cross-compilation, uncomment the `--query-driver` line in
 -- or for STM32:
 "--query-driver=/usr/bin/arm-none-eabi-gcc",
 ```
-
-### Java
-
-Managed by `nvim-jdtls` (not plain lspconfig). Project detection is
-automatic from `pom.xml`, `build.gradle`, or `.git`. Extra bindings:
-
-| Key | Action |
-|---|---|
-| `<leader>jo` | Organize imports |
-| `<leader>jt` | Run nearest test |
-| `<leader>jT` | Run test class |
-
-Change `config_linux` → `config_mac` or `config_win` in `plugins/lsp.lua`
-if not on Linux.
 
 ### PHP
 
@@ -349,8 +363,9 @@ that you are running Neovim as the same user as Matugen. On macOS,
 at the project root and that the `--query-driver` path in `lsp.lua`
 matches your actual toolchain location.
 
-**jdtls not starting** — Confirm Java ≥ 17 is on your `PATH`. Mason
-installs jdtls but not the JDK. Check with `:checkhealth`.
+**DAP not stopping at breakpoints** — Confirm `debugpy` installed
+correctly via `:Mason` (look for it under the "DAP" category); if
+missing, run `:MasonToolsInstall` to trigger `mason-tool-installer.nvim`.
 
 **Slow startup** — Run `:Lazy profile` to identify slow plugins. Most
 plugins are lazy-loaded; if startup is still slow check your LSP

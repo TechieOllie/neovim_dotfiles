@@ -4,8 +4,12 @@
 --  Languages covered:
 --    Python  → pyright (LSP) + ruff (lint/format)
 --    C/C++   → clangd  (reads compile_commands.json)
---    Java    → nvim-jdtls (full-featured jdt.ls wrapper)
 --    SQL     → sqls    (LSP with DB completion)
+--    PHP     → phpactor
+--
+--  Java dropped entirely (jdtls needs a JDK ≥17 on PATH and was the
+--  heaviest, most fragile part of the old setup) — see dap.lua for
+--  Python debugging instead.
 -- ============================================================
 
 return {
@@ -34,7 +38,6 @@ return {
         "clangd",    -- C / C++
         "sqls",      -- SQL
         "phpactor",  -- PHP LSP
-        -- jdtls is handled by nvim-jdtls below (not lspconfig)
       },
       automatic_installation = true,
     },
@@ -167,71 +170,6 @@ return {
         "sqls",
         "lua_ls",
         "phpactor",
-      })
-    end,
-  },
-
-  -- ── Java: nvim-jdtls (replaces plain lspconfig for Java) ─
-  -- Gives you: proper project detection, organize imports,
-  -- test running, and DAP integration.
-  {
-    "mfussenegger/nvim-jdtls",
-    ft = "java",
-    config = function()
-      local jdtls     = require("jdtls")
-      local jdtls_dir = vim.fn.stdpath("data") .. "/mason/packages/jdtls"
-      local project   = vim.fn.fnamemodify(vim.fn.getcwd(), ":p:h:t")
-      local workspace = vim.fn.stdpath("data") .. "/jdtls-workspaces/" .. project
-
-      local config = {
-        cmd = {
-          "java",
-          "-Declipse.application=org.eclipse.jdt.ls.core.id1",
-          "-Dosgi.bundles.defaultStartLevel=4",
-          "-Declipse.product=org.eclipse.jdt.ls.core.product",
-          "-Xms1g",
-          "--add-modules=ALL-SYSTEM",
-          "--add-opens", "java.base/java.util=ALL-UNNAMED",
-          "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-          "-jar", vim.fn.glob(jdtls_dir .. "/plugins/org.eclipse.equinox.launcher_*.jar"),
-          "-configuration", jdtls_dir .. "/config_linux",  -- change to config_mac or config_win
-          "-data", workspace,
-        },
-        root_dir = jdtls.setup.find_root({ ".git", "mvnw", "gradlew", "pom.xml", "build.gradle" }),
-        settings = {
-          java = {
-            format          = { enabled = true },
-            saveActions     = { organizeImports = true },
-            completion      = { favoriteStaticMembers = {
-              "org.junit.Assert.*", "org.junit.Assume.*",
-              "org.junit.jupiter.api.Assertions.*",
-            }},
-            sources         = { organizeImports = { starThreshold = 9999, staticStarThreshold = 9999 } },
-            codeGeneration  = { toString = { template = "${object.className}[${member.name()}=${member.value}, ${otherMembers}]" } },
-          },
-        },
-        on_attach = function(_, bufnr)
-          -- Standard LSP keymaps
-          local nmap = function(k, f, d)
-            vim.keymap.set("n", k, f, { buffer = bufnr, desc = "LSP: " .. d })
-          end
-          nmap("gd",         vim.lsp.buf.definition,        "Go to definition")
-          nmap("gr",         "<cmd>Telescope lsp_references<cr>", "References")
-          nmap("K",          vim.lsp.buf.hover,             "Hover docs")
-          nmap("<leader>rn", vim.lsp.buf.rename,            "Rename")
-          nmap("<leader>ca", vim.lsp.buf.code_action,       "Code action")
-          nmap("<leader>lf", function() vim.lsp.buf.format({ async = true }) end, "Format")
-          -- Java extras
-          nmap("<leader>jo", jdtls.organize_imports,        "Organize imports")
-          nmap("<leader>jt", jdtls.test_nearest_method,     "Test nearest method")
-          nmap("<leader>jT", jdtls.test_class,              "Test class")
-          nmap("<leader>ju", "<cmd>JdtUpdateConfig<cr>",    "Update jdtls config")
-        end,
-      }
-
-      vim.api.nvim_create_autocmd("FileType", {
-        pattern  = "java",
-        callback = function() jdtls.start_or_attach(config) end,
       })
     end,
   },

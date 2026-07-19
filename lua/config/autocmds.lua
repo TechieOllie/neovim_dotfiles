@@ -67,16 +67,6 @@ vim.api.nvim_create_autocmd("FileType", {
   end,
 })
 
--- Java: 4 spaces
-vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("java"),
-  pattern = "java",
-  callback = function()
-    vim.opt_local.tabstop    = 4
-    vim.opt_local.shiftwidth = 4
-  end,
-})
-
 -- SQL: 2-space tabs
 vim.api.nvim_create_autocmd("FileType", {
   group = augroup("sql"),

@@ -1,24 +1,35 @@
 local M = {}
 
+-- Extracted to a local table (rather than an inline literal passed straight
+-- to base16-colorscheme.setup()) so it can also be exposed via
+-- M.get_palette() below — plugins/ui.lua's set_extra_highlights() expects
+-- that function to exist and was silently no-op'ing without it (confirmed
+-- live: type(require("matugen").get_palette) was nil).
+local palette = {
+  base00 = "{{colors.surface.default.hex}}",                -- background
+  base01 = "{{colors.surface_container.default.hex}}",      -- status bars
+  base02 = "{{colors.surface_container_high.default.hex}}", -- selection bg
+  base03 = "{{colors.outline.default.hex}}",                -- comments
+  base04 = "{{colors.on_surface_variant.default.hex}}",     -- dark fg
+  base05 = "{{colors.on_surface.default.hex}}",             -- default fg
+  base06 = "{{colors.on_surface.default.hex}}",             -- light fg
+  base07 = "{{colors.on_background.default.hex}}",          -- lightest fg
+  base08 = "{{colors.error.default.hex}}",                  -- variables, errors
+  base09 = "{{colors.tertiary.default.hex}}",               -- integers, constants
+  base0A = "{{colors.secondary.default.hex}}",              -- classes
+  base0B = "{{colors.primary.default.hex}}",                -- strings
+  base0C = "{{colors.tertiary_fixed_dim.default.hex}}",     -- regex, escapes
+  base0D = "{{colors.primary_fixed_dim.default.hex}}",      -- functions
+  base0E = "{{colors.secondary_fixed_dim.default.hex}}",    -- keywords
+  base0F = "{{colors.error_container.default.hex}}",        -- deprecated
+}
+
 function M.setup()
-  require("base16-colorscheme").setup({
-    base00 = "{{colors.surface.default.hex}}",                -- background
-    base01 = "{{colors.surface_container.default.hex}}",      -- status bars
-    base02 = "{{colors.surface_container_high.default.hex}}", -- selection bg
-    base03 = "{{colors.outline.default.hex}}",                -- comments
-    base04 = "{{colors.on_surface_variant.default.hex}}",     -- dark fg
-    base05 = "{{colors.on_surface.default.hex}}",             -- default fg
-    base06 = "{{colors.on_surface.default.hex}}",             -- light fg
-    base07 = "{{colors.on_background.default.hex}}",          -- lightest fg
-    base08 = "{{colors.error.default.hex}}",                  -- variables, errors
-    base09 = "{{colors.tertiary.default.hex}}",               -- integers, constants
-    base0A = "{{colors.secondary.default.hex}}",              -- classes
-    base0B = "{{colors.primary.default.hex}}",                -- strings
-    base0C = "{{colors.tertiary_fixed_dim.default.hex}}",     -- regex, escapes
-    base0D = "{{colors.primary_fixed_dim.default.hex}}",      -- functions
-    base0E = "{{colors.secondary_fixed_dim.default.hex}}",    -- keywords
-    base0F = "{{colors.error_container.default.hex}}",        -- deprecated
-  })
+  require("base16-colorscheme").setup(palette)
+end
+
+function M.get_palette()
+  return palette
 end
 
 -- Hot-reload on SIGUSR1 sent by Noctalia's post_hook

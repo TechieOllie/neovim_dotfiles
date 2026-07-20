@@ -65,6 +65,22 @@ return {
           vim.api.nvim_set_hl(0, group, opts)
         end
 
+        -- Transparent background: clears the main editor area's solid
+        -- fill so Ghostty's own background-opacity + niri's blur
+        -- (background-effect on all windows) actually show through,
+        -- instead of being covered by an opaque Normal highlight.
+        -- Floating windows (Telescope, LSP hover, etc.) keep their own
+        -- solid-ish background below so they still read as "elevated"
+        -- above the transparent main area.
+        -- nvim_set_hl() replaces a group's whole definition rather than
+        -- merging with what base16 already set — fg must be re-specified
+        -- explicitly here too, or clearing bg wipes fg out as well
+        -- (confirmed live: omitting fg left Normal completely empty).
+        hi("Normal",       { fg = c.base05, bg = "none" })
+        hi("NormalNC",     { fg = c.base05, bg = "none" })
+        hi("SignColumn",   { fg = c.base04, bg = "none" })
+        hi("EndOfBuffer",  { fg = c.base02, bg = "none" })
+
         -- Telescope
         hi("TelescopeBorder",        { fg = c.base02 })
         hi("TelescopePromptBorder",  { fg = c.base0D })

@@ -24,7 +24,7 @@ return {
 
       local ensure_installed = {
         -- Your languages
-        "python", "c", "cpp", "sql", "php",
+        "python", "c", "cpp", "sql", "php", "nasm",
         -- Config / tooling
         "lua", "vim", "vimdoc", "query",
         -- Common extras
